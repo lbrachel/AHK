@@ -28,7 +28,7 @@ if (intCount = 1)
 		else if  x=0
 			{
 				Process_Resume("MEOW.exe") ; 恢复进程
-                ;MsgBox,uuuu
+                ;MsgBox,huhu
 				x:=1
 				
 			}
@@ -50,7 +50,8 @@ Process_Suspend(PID_or_Name){
         Return -1
     DllCall("ntdll.dll\NtSuspendProcess", "Int", h)
     DllCall("CloseHandle", "Int", h)
-    MsgBox,,,MEOW.exe suspended, 1      ;1秒后退出提示窗口
+    ;MsgBox,,,MEOW.exe suspended, 1      ;1秒后退出提示窗口
+    TrayTip, ,MEOW suspended,1,1
 	return
 }
 
@@ -62,7 +63,8 @@ Process_Resume(PID_or_Name){
         Return -1
     DllCall("ntdll.dll\NtResumeProcess", "Int", h)
     DllCall("CloseHandle", "Int", h)
-    MsgBox,,, MEOW.exe resumed, 1
+    ;MsgBox,,, MEOW.exe resumed, 1
+    TrayTip, ,MEOW resumed,1,1
 	return
 }
 
@@ -75,7 +77,8 @@ ProcExist(PID_or_Name=""){
  {
 	Process, Close, %PID_or_Name%
 	Process, Exist,  %PID_or_Name%
-	MsgBox,,, MEOW.exe is  terminated, 1
+	;MsgBox,,, MEOW.exe is  terminated, 1
+    TrayTip, ,MEOW terminated,1,1
 	return
  }
  ;************************MEOW.exe_end********************************;
