@@ -4,8 +4,15 @@
 ;~ 时间：2016.11.30
 ;~ 作者：jinge
 ;~ 版本：0.0.1
-#NoTrayIcon    ;来自ie代理设置模块
+;#NoTrayIcon    ;来自ie代理设置模块;不显示托盘图标.
 #Persistent     ;让脚本持久运行(即直到用户关闭或遇到 ExitApp
+;;----------------------------------------------------------
+;;    开机自检
+;;----------------------------------------------------------
+if ( RegRead("HKCU","Software\Microsoft\Windows\CurrentVersion\Internet Settings","Proxyenable") = 1	and		ProcessExist("MEOW.exe")=0 )		;软件没开而且代理开着，就要关掉代理
+	{
+		proxydisable()
+	}	
 x:=1
 #MaxThreadsPerHotkey 2  ;超过两次的连击都被认为是2次，所以2次以上的连击都会被忽略
 ^d::  ; Ctrl+d 热键.
@@ -66,12 +73,9 @@ else if (intCount = 2)
 					ToolTip,Set MEOW OFF done
 					SetTimer, RemoveToolTip, 3000   
 				}				
-				if RegRead("HKCU","Software\Microsoft\Windows\CurrentVersion\Internet Settings","Proxyenable") = 1		;并将代理关闭。
+				if RegRead("HKCU","Software\Microsoft\Windows\CurrentVersion\Internet Settings","Proxyenable") = 1		
 					{
-						RegWrite,REG_DWORD,HKCU,Software\Microsoft\Windows\CurrentVersion\Internet Settings,Proxyenable,0
-						dllcall("wininet\InternetSetOptionW","int","0","int","39","int","0","int","0")				;重置信息
-						dllcall("wininet\InternetSetOptionW","int","0","int","37","int","0","int","0")
-						return
+						proxydisable()
 					}				 
             }
     }
@@ -172,24 +176,45 @@ SetProxy(address = "",state = ""){
 	}
 	return
 }
+;;----------------------------------------------------------
+;;    Function RegRead
+;;----------------------------------------------------------
 RegRead(RootKey, SubKey, ValueName = "")		;使ToolTip显示消失子函数
 {
 	RegRead, v, %RootKey%, %SubKey%, %ValueName%
 	return, v
 }
-
+;;----------------------------------------------------------
+;;    Function RemoveToolTip
+;;----------------------------------------------------------
 RemoveToolTip:									;要让工具提示在一段时间后消失, 而不使用 Sleep 的方法 (它停止了当前线程):
 SetTimer, RemoveToolTip, Off
 ToolTip
 return
- 
+;;----------------------------------------------------------
+;;    Function ProcessExist
+;;----------------------------------------------------------
+ProcessExist(Name){
+	Process,Exist,%Name%
+	return Errorlevel
+} 
+;;----------------------------------------------------------
+;;    Function proxydisable
+;;----------------------------------------------------------
+proxydisable(){
+		RegWrite,REG_DWORD,HKCU,Software\Microsoft\Windows\CurrentVersion\Internet Settings,Proxyenable,0		;并将代理关闭。
+		RegDelete,HKCU,Software\Microsoft\Windows\CurrentVersion\Internet Settings,AutoConfigURL			;删除自动脚本配置信息
+		dllcall("wininet\InternetSetOptionW","int","0","int","39","int","0","int","0")				;重置网络
+		dllcall("wininet\InternetSetOptionW","int","0","int","37","int","0","int","0")
+		return
+	}		
   ;*******************IE proxy setting_start*******************************;
   ;========+++++子程序_结束=========================;
   
  ;************************MEOW.exe_end********************************;
  
  ;************************2.添加热字符串_start********************************;  
-::qqemail:: 74098@qq.com
+::qqemail:: 740983026@qq.com
 ;************************添加热字符串_end********************************;
   
 ;************************3.添加热键_start********************************;  
